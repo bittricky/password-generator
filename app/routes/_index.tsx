@@ -1,11 +1,51 @@
+import { useState } from "react";
+import { json } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/node";
+import { useSubmit, useActionData } from "@remix-run/react";
+import type { ActionFunctionArgs } from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Password Generator" },
+    { name: "Generate Passwords", content: "Generate Passwords" },
   ];
 };
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const length = Number(formData.get("length"));
+  const includeUppercase = formData.get("uppercase") === "on";
+  const includeLowercase = formData.get("lowercase") === "on";
+  const includeNumbers = formData.get("numbers") === "on";
+  const includeSymbols = formData.get("symbols") === "on";
+
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+  let chars = "";
+  if (includeUppercase) chars += uppercase;
+  if (includeLowercase) chars += lowercase;
+  if (includeNumbers) chars += numbers;
+  if (includeSymbols) chars += symbols;
+
+  if (!chars) chars = lowercase + numbers;
+
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  let strength = 0;
+  if (includeUppercase) strength++;
+  if (includeLowercase) strength++;
+  if (includeNumbers) strength++;
+  if (includeSymbols) strength++;
+  if (length >= 12) strength++;
+
+  return json({ password, strength });
+}
 
 export default function Index() {
   return (
