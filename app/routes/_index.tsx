@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
-import type { MetaFunction } from "@remix-run/node";
 import { useSubmit, useActionData } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
 
@@ -9,13 +8,6 @@ import {
   PasswordOptions,
   PasswordStrengthIndicator,
 } from "../components";
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Password Generator" },
-    { name: "Generate Passwords", content: "Generate Passwords" },
-  ];
-};
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -58,6 +50,20 @@ export default function Index() {
   const actionData = useActionData<typeof action>();
   const [length, setLength] = useState(10);
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    formData.set("length", length.toString());
+
+    submit(formData, {
+      method: "post",
+      action: "/?index",
+    });
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6 bg-zinc-900 p-8 rounded-lg shadow-xl">
@@ -69,7 +75,7 @@ export default function Index() {
           <PasswordDisplay password={actionData.password} />
         )}
 
-        <form onChange={(e) => submit(e.currentTarget)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <PasswordOptions length={length} onLengthChange={setLength} />
 
           {actionData?.strength !== undefined && (

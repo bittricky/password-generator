@@ -8,10 +8,9 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 import { cssBundleHref } from "@remix-run/css-bundle";
 
-import styles from "./tailwind.css";
+import "./tailwind.css";
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
