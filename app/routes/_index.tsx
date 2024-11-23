@@ -3,7 +3,8 @@ import { json } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/node";
 import { useSubmit, useActionData } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import PasswordDisplay from "~/components/PasswordDisplay";
+
+import { PasswordDisplay, PasswordOptions } from "../components";
 
 export const meta: MetaFunction = () => {
   return [
@@ -65,7 +66,8 @@ export default function Index() {
         )}
 
         <form onChange={(e) => submit(e.currentTarget)} className="space-y-4">
-          {/* TODO: add password options */}
+          <PasswordOptions length={length} onLengthChange={setLength} />
+
           {/* TODO: add password strength indicator */}
 
           <button
