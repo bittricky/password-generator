@@ -1,6 +1,6 @@
 {
   "name": "password-generator",
-  "private": true,
+  "author": "Mitul Patel",
   "sideEffects": false,
   "type": "module",
   "scripts": {
