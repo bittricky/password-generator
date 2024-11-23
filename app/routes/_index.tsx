@@ -9,38 +9,85 @@ import {
   PasswordStrengthIndicator,
 } from "../components";
 
+const getCharacterPool = (options: {
+  includeUppercase: boolean;
+  includeLowercase: boolean;
+  includeNumbers: boolean;
+  includeSymbols: boolean;
+}): string => {
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+  let chars = "";
+
+  if (options.includeUppercase) chars += uppercase;
+  if (options.includeLowercase) chars += lowercase;
+  if (options.includeNumbers) chars += numbers;
+  if (options.includeSymbols) chars += symbols;
+
+  return chars || lowercase + numbers;
+};
+
+const generatePassword = (length: number, characterPool: string): string => {
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += characterPool.charAt(
+      Math.floor(Math.random() * characterPool.length)
+    );
+  }
+  return password;
+};
+
+const calculateStrength = (options: {
+  includeUppercase: boolean;
+  includeLowercase: boolean;
+  includeNumbers: boolean;
+  includeSymbols: boolean;
+  length: number;
+}): number => {
+  const {
+    includeUppercase,
+    includeLowercase,
+    includeNumbers,
+    includeSymbols,
+    length,
+  } = options;
+  return [
+    includeUppercase,
+    includeLowercase,
+    includeNumbers,
+    includeSymbols,
+    length >= 12,
+  ].filter(Boolean).length;
+};
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const length = Number(formData.get("length"));
+  const length = Math.max(
+    6,
+    Math.min(Number(formData.get("length")) || 10, 32)
+  );
   const includeUppercase = formData.get("uppercase") === "on";
   const includeLowercase = formData.get("lowercase") === "on";
   const includeNumbers = formData.get("numbers") === "on";
   const includeSymbols = formData.get("symbols") === "on";
 
-  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const lowercase = "abcdefghijklmnopqrstuvwxyz";
-  const numbers = "0123456789";
-  const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+  const characterPool = getCharacterPool({
+    includeUppercase,
+    includeLowercase,
+    includeNumbers,
+    includeSymbols,
+  });
 
-  let chars = "";
-  if (includeUppercase) chars += uppercase;
-  if (includeLowercase) chars += lowercase;
-  if (includeNumbers) chars += numbers;
-  if (includeSymbols) chars += symbols;
+  const password = generatePassword(length, characterPool);
 
-  if (!chars) chars = lowercase + numbers;
-
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  let strength = 0;
-  if (includeUppercase) strength++;
-  if (includeLowercase) strength++;
-  if (includeNumbers) strength++;
-  if (includeSymbols) strength++;
-  if (length >= 12) strength++;
+  const strength = calculateStrength({
+    includeUppercase,
+    includeLowercase,
+    includeNumbers,
+    includeSymbols,
+    length,
+  });
 
   return json({ password, strength });
 }
