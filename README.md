@@ -17,7 +17,7 @@ Ensure the following are installed on your machine:
 
    ```bash
    git clone <repository-url>
-   cd bolt-password-generator
+   cd password-generator
    ```
 
 2. **Install Dependencies**  
